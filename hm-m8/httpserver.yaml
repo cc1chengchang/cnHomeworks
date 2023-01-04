@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpserver
+spec:
+  # 副本数
+  replicas: 2
+  selector:
+    matchLabels:
+      app: httpserver
+  # 更新策略
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: httpserver
+    spec:
+      containers:
+        - name: httpserver
+          image: registry.cn-beijing.aliyuncs.com/chchang_docker/ccdocker:0.0.1
+          imagePullPolicy: IfNotPresent
+          # 资源需求和 QoS 保证
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 1
+            requests:
+              memory: 1Gi
+              cpu: 1
+          # 探活
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8090
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          # 优雅启动，就绪状态检查
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8090
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+      # grace peroid 定义30秒后，发送SIGKILL
+      terminationGracePeriodSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8090
+  selector:
+    app: httpserver
+    #app.kubernetes.io/name: httpserver
