@@ -22,6 +22,8 @@ func main() {
 
 	log.SetOutput(os.Stdout)
 
+	Register()
+
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/", rootHandler)
 	mux.HandleFunc("/healthz", healthz)

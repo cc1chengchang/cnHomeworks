@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: httpserver
-          image: cc1chengchang/ccdocker:0.0.3 
+          image: cc1chengchang/ccdocker:0.0.4 
           imagePullPolicy: IfNotPresent
           # 资源需求和 QoS 保证
           resources:
@@ -54,6 +54,8 @@ spec:
             periodSeconds: 5
             successThreshold: 1
             timeoutSeconds: 1
+      imagePullSecrets:
+        - name: regcred
       # grace peroid 定义30秒后，发送SIGKILL
       terminationGracePeriodSeconds: 30
 
